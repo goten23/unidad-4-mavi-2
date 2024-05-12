@@ -1,5 +1,60 @@
 import pygame
 import sys
+import math
+
+# Dimensiones de la pantalla
+WIDTH, HEIGHT = 800, 600
+# Colores
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+class Cannon:
+    def __init__(self):
+        self.image = pygame.Surface((50, 50))
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.bottomleft = (0, HEIGHT)
+        self.angle = 45
+        self.power = 0
+
+    def update(self):
+        mouse_pos = pygame.mouse.get_pos()
+        angle = math.atan2(HEIGHT - mouse_pos[1], mouse_pos[0])
+        self.angle = math.degrees(angle)
+        distance = math.hypot(WIDTH - mouse_pos[0], HEIGHT - mouse_pos[1])
+        self.power = min(distance, 100)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, BLACK, self.rect)
+        pygame.draw.line(screen, BLACK, self.rect.bottomleft, (self.rect.left, self.rect.bottom - self.power), 5)
+
+class Ragdoll(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((20, 40))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.velocity = pygame.math.Vector2(0, 0)
+
+    def update(self):
+        self.rect.move_ip(self.velocity)
+
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, static=True):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.static = static
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+
+import pygame
+import sys
 
 # Inicializar pygame
 pygame.init()
