@@ -1,0 +1,266 @@
+import pygame
+import sys
+
+# Inicializar pygame
+pygame.init()
+
+# Configuración de la ventana
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Drag")
+
+# Colores
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+
+# Lista para almacenar los puntos
+points = [(100, 100), (200, 200), (300, 300)]
+
+# Función para dibujar los puntos en pantalla
+def draw_points():
+    for point in points:
+        pygame.draw.circle(screen, RED, point, 5)
+
+# Bucle principal
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Click izquierdo
+                # Verificar si se hizo clic en algún punto para comenzar a arrastrarlo
+                for i, point in enumerate(points):
+                    if pygame.Rect(point[0] - 5, point[1] - 5, 10, 10).collidepoint(event.pos):
+                        selected_point = i
+                        break
+                else:
+                    # Si no se hizo clic en ningún punto, añadir uno nuevo
+                    points.append(event.pos)
+            elif event.button == 3:  # Click derecho
+                # Eliminar el punto más cercano al clic derecho
+                nearest_point = min(points, key=lambda p: ((p[0] - event.pos[0])**2 + (p[1] - event.pos[1])**2)**0.5)
+                points.remove(nearest_point)
+        elif event.type == pygame.MOUSEMOTION:
+            if event.buttons[0]:  # Arrastre con el botón izquierdo del mouse
+                # Actualizar la posición del punto seleccionado
+                if selected_point is not None:
+                    points[selected_point] = event.pos
+
+    # Dibujar en pantalla
+    screen.fill(WHITE)
+    draw_points()
+    pygame.display.flip()import pygame
+import sys
+
+# Inicializar pygame
+pygame.init()
+
+# Configuración de la ventana
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Splats")
+
+# Cargar imágenes de los sprites
+red_splat_img = pygame.image.load("red_splat.png")
+blue_splat_img = pygame.image.load("blue_splat.png")
+
+# Lista para almacenar los splats
+splats = []
+
+# Bucle principal
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Click izquierdo
+                splats.append((red_splat_img, event.pos))
+            elif event.button == 3:  # Click derecho
+                splats.append((blue_splat_img, event.pos))
+
+    # Dibujar los splats en pantalla
+    screen.fill((255, 255, 255))  # Llenar la pantalla de blanco
+    for splat in splats:
+        screen.blit(splat[0], splat[1])
+
+    # Actualizar la pantalla
+    pygame.display.flip()import pygame
+import sys
+
+# Inicializar pygame
+pygame.init()
+
+# Configuración de la ventana
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Atrapado")
+
+# Cargar imágenes
+square_img = pygame.image.load("cuad_yellow.png")
+circle_img = pygame.image.load("rcircleg.png")
+
+# Definir posiciones iniciales
+square_pos = [screen_width // 2, screen_height // 2]
+circle_pos = [screen_width // 2, screen_height // 2]
+
+# Indicar el sprite que se está utilizando actualmente
+current_sprite = "square"
+
+# Bucle principal
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            # Mover el cuadrado con las teclas de dirección
+            if event.key == pygame.K_LEFT:
+                square_pos[0] -= 10
+            elif event.key == pygame.K_RIGHT:
+                square_pos[0] += 10
+            elif event.key == pygame.K_UP:
+                square_pos[1] -= 10
+            elif event.key == pygame.K_DOWN:
+                square_pos[1] += 10
+            # Cambiar entre el cuadrado y el círculo con la barra espaciadora
+            elif event.key == pygame.K_SPACE:
+                if current_sprite == "square":
+                    current_sprite = "circle"
+                else:
+                    current_sprite = "square"
+    
+    # Mantener el cuadrado dentro de la pantalla
+    square_pos[0] = max(0, min(screen_width - square_img.get_width(), square_pos[0]))
+    square_pos[1] = max(0, min(screen_height - square_img.get_height(), square_pos[1]))
+
+    # Dibujar en pantalla
+    screen.fill((255, 255, 255))  # Llenar la pantalla de blanco
+    if current_sprite == "square":
+        screen.blit(square_img, square_pos)
+    else:
+        screen.blit(circle_img, square_pos)
+    pygame.display.flip()import pygame
+import sys
+
+# Inicializar pygame
+pygame.init()
+
+# Configuración inicial de la ventana
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Adaptación")
+
+# Límites de tamaño de la ventana
+MIN_WIDTH, MIN_HEIGHT = 100, 100
+MAX_WIDTH, MAX_HEIGHT = 1000, 1000
+
+# Bucle principal
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
+
+    # Obtener el tamaño actual de la ventana
+    current_width, current_height = screen.get_size()
+
+    # Obtener la entrada del usuario para cambiar el tamaño
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_UP] and current_height < MAX_HEIGHT:
+        current_height += 10
+    elif keys[pygame.K_DOWN] and current_height > MIN_HEIGHT:
+        current_height -= 10
+    elif keys[pygame.K_LEFT] and current_width > MIN_WIDTH:
+        current_width -= 10
+    elif keys[pygame.K_RIGHT] and current_width < MAX_WIDTH:
+        current_width += 10
+
+    # Actualizar el tamaño de la ventana
+    screen = pygame.display.set_mode((current_width, current_height))
+
+    # Dibujar en pantalla
+    screen.fill((255, 255, 255))  # Llenar la pantalla de blanco
+    pygame.display.flip()
+
+# Salir del programa
+pygame.quit()
+sys.exit()import pygame
+import sys
+import random
+
+# Inicializar pygame
+pygame.init()
+
+# Configuración de la ventana
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Clickale")
+
+# Clase para representar el enemigo
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("et.png").convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (random.randint(0, screen_width - self.rect.width), random.randint(0, screen_height - self.rect.height))
+
+# Clase para representar la mira
+class Crosshair(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("crosshair.png").convert_alpha()
+        self.rect = self.image.get_rect()
+
+# Crear grupos de sprites
+enemies_group = pygame.sprite.Group()
+all_sprites_group = pygame.sprite.Group()
+
+# Crear el objeto mira
+crosshair = Crosshair()
+all_sprites_group.add(crosshair)
+
+# Contador de enemigos derrotados
+enemies_defeated = 0
+
+# Bucle principal
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Click izquierdo
+                # Comprobar si la mira colisiona con algún enemigo
+                enemies_hit_list = pygame.sprite.spritecollide(crosshair, enemies_group, True)
+                if len(enemies_hit_list) > 0:
+                    enemies_defeated += 1
+                    print("Enemigo derrotado:", enemies_defeated)
+                    if enemies_defeated >= 5:
+                        print("¡Has ganado!")
+                        pygame.quit()
+                        sys.exit()
+            elif event.button == 3:  # Click derecho
+                # Crear un nuevo enemigo y agregarlo al grupo de enemigos
+                new_enemy = Enemy()
+                enemies_group.add(new_enemy)
+                all_sprites_group.add(new_enemy)
+
+    # Actualizar la posición de la mira según la posición del mouse
+    crosshair.rect.center = pygame.mouse.get_pos()
+
+    # Dibujar todos los sprites en pantalla
+    screen.fill((0, 0, 0))  # Llenar la pantalla de negro
+    all_sprites_group.draw(screen)
+
+    # Actualizar la pantalla
+    pygame.display.flip()
